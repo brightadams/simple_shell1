@@ -1,40 +1,36 @@
 #include "shell.h"
 
 /**
- * interactive - checks if the shell is in interactive mode
- * @info: a pointer to the info_t struct
+ * interactive - if interactive mode return true
+ * @info: containing information about the shell
  *
- * Return: 1 if shell is in interactive mode, 0 otherwise
+ * Return: returns 1 if interactive mode, 0 otherwise
  */
 int interactive(info_t *info)
 {
-	return (isatty(STDIN_FILENO) && info->readfd <= 2);
+	return (isatty(STDIN_FILENO) && info->readfd <= STDERR_FILENO);
 }
 
 /**
- * is_delim - checks if a character is a delimiter
- * @c: the character to check
+ * is_delim - checks if character is a delimiter
+ * @c: the char to check
  * @delim: the delimiter string
- *
- * Return: 1 if character is a delimiter, 0 otherwise
+ * Return: 1 if true, 0 if false
  */
 int is_delim(char c, char *delim)
 {
 	while (*delim)
-	{
 		if (*delim++ == c)
 			return (1);
-	}
-
 	return (0);
 }
 
 /**
- * _isalpha - checks if a character is an alphabetic character
- * @c: the character to check
- *
- * Return: 1 if the character is an alphabetic character, 0 otherwise
+ * _isalpha - checks if it's an alphabet
+ * @c: The char to check
+ * Return: return 1 if c is letter, 0 otherwise
  */
+
 int _isalpha(int c)
 {
 	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
@@ -44,11 +40,11 @@ int _isalpha(int c)
 }
 
 /**
- * _atoi - converts a string to an integer
- * @s: the string to be converted
- *
- * Return: 0 if there are no numbers in the string, the converted number otherwise
+ * _atoi - converts string to integer
+ * @s: input of string to be converted
+ * Return: return 0 if no numbers in string, converted number if otherwise
  */
+
 int _atoi(char *s)
 {
 	int i, sign = 1, flag = 0, output;
@@ -59,7 +55,7 @@ int _atoi(char *s)
 		if (s[i] == '-')
 			sign *= -1;
 
-		if (s[i] >= '0' && s[i] <= '9')
+		if (_isdigit(s[i]))
 		{
 			flag = 1;
 			result *= 10;

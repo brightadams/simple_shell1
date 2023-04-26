@@ -1,27 +1,28 @@
 #include "shell.h"
 
 /**
- * _myexit - exits the shell
- * @info: pointer to the struct containing arguments and status
+ * my_exit - exits the shell
+ * @info: struct containing potential arguments.
  *
- * Return: exits with a given exit status (0) if info.argv[0] != "exit"
+ * Return: exits with a given exit status
+ * (0) if info.argv[0] != "exit"
  */
-int _myexit(info_t *info)
+int my_exit(info_t *info)
 {
-	int exit_status;
+	int exit_check;
 
 	if (info->argv[1]) /* If there is an exit argument */
 	{
-		exit_status = _erratoi(info->argv[1]);
-		if (exit_status == -1)
+		exit_check = err_atoi(info->argv[1]);
+		if (exit_check == -1)
 		{
 			info->status = 2;
 			print_error(info, "Illegal number: ");
-			_eputs(info->argv[1]);
-			_eputchar('\n');
+			err_puts(info->argv[1]);
+			err_putchar('\n');
 			return (1);
 		}
-		info->err_num = _erratoi(info->argv[1]);
+		info->err_num = err_atoi(info->argv[1]);
 		return (-2);
 	}
 	info->err_num = -1;
@@ -29,62 +30,64 @@ int _myexit(info_t *info)
 }
 
 /**
- * _mycd - changes the current directory of the process
- * @info: pointer to the struct containing arguments and status
+ * my_cd - changes the current directory of the process
+ * @info: struct containing potential arguments.
  *
  * Return: Always 0
  */
-int _mycd(info_t *info)
+int my_cd(info_t *info)
 {
-	char *current_dir, *dir, buffer[1024];
+	char *s, *dir, buffer[1024];
 	int chdir_ret;
 
-	current_dir = getcwd(buffer, 1024);
-	if (!current_dir)
-		_puts("TODO: >>getcwd failure emsg here<<\n");
-
+	s = getcwd(buffer, 1024);
+	if (!s)
+		err_puts("TODO: >>getcwd failure emsg here<<\n");
 	if (!info->argv[1])
 	{
-		dir = _getenv(info, "HOME=");
+		dir = getenv(info, "HOME=");
 		if (!dir)
-			chdir_ret = chdir((dir = _getenv(info, "PWD=")) ? dir : "/");
+			chdir_ret = /* TODO: what should this be? */
+				chdir((dir = getenv(info, "PWD=")) ? dir : "/");
 		else
 			chdir_ret = chdir(dir);
 	}
-	else if (_strcmp(info->argv[1], "-") == 0)
+	else if (strcmp(info->argv[1], "-") == 0)
 	{
-		if (!_getenv(info, "OLDPWD="))
+		if (!getenv(info, "OLDPWD="))
 		{
-			_puts(current_dir);
+			_puts(s);
 			_putchar('\n');
 			return (1);
 		}
-		_puts(_getenv(info, "OLDPWD=")), _putchar('\n');
-		chdir_ret = chdir((dir = _getenv(info, "OLDPWD=")) ? dir : "/");
+		_puts(getenv(info, "OLDPWD="));
+		_putchar('\n');
+		chdir_ret = /* TODO: what should this be? */
+			chdir((dir = getenv(info, "OLDPWD=")) ? dir : "/");
 	}
 	else
 		chdir_ret = chdir(info->argv[1]);
-
 	if (chdir_ret == -1)
 	{
 		print_error(info, "can't cd to ");
-		_eputs(info->argv[1]), _eputchar('\n');
+		err_puts(info->argv[1]);
+		err_putchar('\n');
 	}
 	else
 	{
-		_setenv(info, "OLDPWD", _getenv(info, "PWD="));
-		_setenv(info, "PWD", getcwd(buffer, 1024));
+		setenv(info, "OLDPWD", getenv(info, "PWD="));
+		setenv(info, "PWD", getcwd(buffer, 1024));
 	}
 	return (0);
 }
 
 /**
- * _myhelp - prints help information for built-in commands
- * @info: pointer to the struct containing arguments and status
+ * my_help - prints help information about built-in shell commands
+ * @info: struct containing potential arguments.
  *
  * Return: Always 0
  */
-int _myhelp(info_t *info)
+int my_help(info_t *info)
 {
 	char **arg_array;
 
